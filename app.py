@@ -6,7 +6,10 @@ from datetime import datetime
 
 # ---- SETUP GOOGLE SHEETS ACCESS ---- #
 scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds = ServiceAccountCredentials.from_json_keyfile_name("credentials.json", scope)
+import json
+creds_dict = json.loads(st.secrets["credentials"])
+creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
+
 client = gspread.authorize(creds)
 
 # OPEN GOOGLE SHEET & WORKSHEETS (make sure names match your sheet and tabs)
