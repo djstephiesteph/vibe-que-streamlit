@@ -3,17 +3,16 @@ import pandas as pd
 import gspread
 from oauth2client.service_account import ServiceAccountCredentials
 from datetime import datetime
-
-# ---- SETUP GOOGLE SHEETS ACCESS ---- #
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 import json
+
+# ---- SETUP GOOGLE SHEETS ACCESS via Streamlit Secrets ---- #
+scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
 creds_dict = json.loads(st.secrets["credentials"])
 creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-
 client = gspread.authorize(creds)
 
-# OPEN GOOGLE SHEET & WORKSHEETS (make sure names match your sheet and tabs)
-sheet = client.open("VibeQue_DJ_Master")  # <-- your Google Sheet title
+# OPEN GOOGLE SHEET & WORKSHEETS
+sheet = client.open("VibeQue_DJ_Master")
 master_songs = sheet.worksheet("Master Songs")
 requests_sheet = sheet.worksheet("Song Requests")
 
@@ -64,7 +63,8 @@ if st.button("Submit Request"):
           [custom_entry, custom_artist, "No", "", "", "", "", "", ""]
 
     requests_sheet.append_row(row)
-st.success("✅ Your request has been added to the Vibe Que queue!")
+    st.success("✅ Your request has been added to the Vibe Que queue!")
 
-
-
+# ---- FOOTER ---- #
+st.markdown("---")
+st.markdown("Built for DJs, Dancers, and Vibe Curators 💃🏾🎶")
