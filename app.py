@@ -13,7 +13,7 @@ creds = ServiceAccountCredentials.from_json_keyfile_name("creds.json", scope)
 client = gspread.authorize(creds)
 
 # Open the Google Sheet and use the 'Request Log' tab
-SHEET_ID = 1JkgaBwbmy7iT8iuEaekEIhWMyc4Su35GnFiRqw2pS9Y
+SHEET_ID = "1JkgaBwbmy7iT8iuEaekEIhWMyc4Su35GnFiRqw2pS9Y"
 worksheet = client.open_by_key(SHEET_ID).worksheet("Request Log")
 
 # Streamlit UI
