@@ -6,8 +6,8 @@ from datetime import datetime
 from google.oauth2.service_account import Credentials
 
 # ---------- 1. Page Setup ----------
-st.set_page_config(page_title="Vibe Que 🎧", layout="wide")
-st.title("🎶 Vibe Que DJ Request App")
+st.set_page_config(page_title="VibeQue Request Zone", layout="wide")
+st.title("🎧 VibeQue Request Zone")
 st.markdown("Request up to 4 songs or line dances for tonight's event! 💃🏾🕺🏽")
 st.markdown("---")
 
@@ -48,20 +48,19 @@ with st.form("request_form", clear_on_submit=True):
             # Auto-tags
             timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
             mood = "🔥" if "Remix" in remix or category in ["Club Banger", "Throwback"] else "💃🏾"
-            rating = ""  # user can rate later
+            rating = ""
             status = "Queued"
-            submission_type = "Early"  # assume for now
+            submission_type = "Early"
             tempo = ""
             bpm = ""
             played = "No"
             date_played = ""
-            need_music = "Yes"  # assume not yet downloaded
+            need_music = "Yes"
             mp3_link = ""
             download_status = "Pending"
             source_platform = ""
             unique_id = f"{timestamp}_{submitted_by}"
 
-            # Final row
             new_row = [
                 timestamp, song, artist, line_dance, category, remix, mood,
                 dance_level, submitted_by, occasion, rating, status,
