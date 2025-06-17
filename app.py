@@ -1,70 +1,74 @@
 import streamlit as st
-import pandas as pd
 import gspread
-from oauth2client.service_account import ServiceAccountCredentials
-from datetime import datetime
+import pandas as pd
 import json
+from datetime import datetime
+from google.oauth2.service_account import Credentials
 
-# ---- SETUP GOOGLE SHEETS ACCESS via Streamlit Secrets ---- #
-scope = ["https://spreadsheets.google.com/feeds", "https://www.googleapis.com/auth/drive"]
-creds_dict = json.loads(st.secrets["credentials"])
-creds = ServiceAccountCredentials.from_json_keyfile_dict(creds_dict, scope)
-client = gspread.authorize(creds)
-
-# OPEN GOOGLE SHEET & WORKSHEETS
-sheet = client.open("VibeQue_DJ_Master")
-master_songs = sheet.worksheet("Master Songs")
-requests_sheet = sheet.worksheet("Song Requests")
-
-# LOAD MASTER SONG DATA
-song_data = master_songs.get_all_records()
-df = pd.DataFrame(song_data)
-
-# ---- STREAMLIT USER INTERFACE ---- #
-st.image("logo.png", width=300)
-st.markdown("### 🎧 Welcome to Vibe Que - The Ultimate DJ Request Experience")
-
-name = st.text_input("Your Name (optional)", placeholder="Enter name or nickname")
-
-# SELECT UP TO 4 SONGS
-selected_songs = []
-remix_choices = []
-artist_matches = []
-dance_matches = []
-mood_tags = []
-
-for i in range(1, 5):
-    song = st.selectbox(f"Select Song {i}", ["---"] + sorted(df['Song Title'].unique()), key=f"song_{i}")
-    if song != "---":
-        remix = st.radio(f"Remix or Original for {song}?", ["Original", "Remix"], key=f"version_{i}")
-        match = df[df['Song Title'] == song].iloc[0]
-
-        selected_songs.append(song)
-        remix_choices.append(remix)
-        artist_matches.append(match['Artist'])
-        dance_matches.append(match['Line Dance Name'])
-        mood_tags.append(match['Mood Tag'])
-    else:
-        selected_songs.append("")
-        remix_choices.append("")
-        artist_matches.append("")
-        dance_matches.append("")
-        mood_tags.append("")
-
-# CUSTOM REQUEST SECTION
-custom_entry = st.text_input("Request a song or line dance NOT listed")
-custom_artist = st.text_input("Who is the artist? (Required if above is filled)")
-
-# SUBMIT BUTTON
-if st.button("Submit Request"):
-    timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
-    row = [timestamp, name] + \
-          [val for group in zip(selected_songs, remix_choices, artist_matches, dance_matches, mood_tags) for val in group] + \
-          [custom_entry, custom_artist, "No", "", "", "", "", "", ""]
-
-    requests_sheet.append_row(row)
-    st.success("✅ Your request has been added to the Vibe Que queue!")
-
-# ---- FOOTER ---- #
+# ---------- 1. Page Setup ----------
+st.set_page_config(page_title="VibeQue Request Zone", layout="wide")
+st.title("🎧 VibeQue Request Zone")
+st.markdown("Request up to 4 songs or line dances for tonight's event! 💃🏾🕺🏽")
 st.markdown("---")
-st.markdown("Built for DJs, Dancers, and Vibe Curators 💃🏾🎶")
+
+# ---------- 2. Google Sheets Auth ----------
+creds_dict = st.secrets["GOOGLE_CREDS"]
+creds = Credentials.from_service_account_info(creds_dict)
+gc = gspread.authorize(creds)
+
+# ---------- 3. Sheet + Worksheet ----------
+SHEET_ID = "1JkgaBwbmy7iT8iuEaekEIhWMyc4Su35GnFiRqw2pS9Y"
+worksheet = gc.open_by_key(SHEET_ID).worksheet("Request Log")
+
+# ---------- 4. Load + Display Current Requests ----------
+data = worksheet.get_all_records()
+df = pd.DataFrame(data)
+st.subheader("📋 Current Request Log")
+st.dataframe(df, use_container_width=True)
+
+# ---------- 5. Submit Form ----------
+st.subheader("➕ Add Your Song or Line Dance Request")
+
+with st.form("request_form", clear_on_submit=True):
+    song = st.text_input("🎵 Song Title")
+    artist = st.text_input("🎤 Artist")
+    line_dance = st.text_input("💃🏾 Line Dance Name (if any)")
+    category = st.selectbox("🎧 Category", ["Line Dance", "Slow Jam", "Club Banger", "Throwback", "Other"])
+    remix = st.radio("Remix Version?", ["Original", "Remix", "Either"])
+    dance_level = st.selectbox("🕺🏽 Dance Level", ["Beginner", "Intermediate", "Trailride", "Sexy/Slow"])
+    submitted_by = st.text_input("👤 Your Name")
+    occasion = st.text_input("🎉 Occasion (optional)")
+
+    submit = st.form_submit_button("Submit Request")
+
+    if submit:
+        if not song and not line_dance:
+            st.warning("⚠️ You must enter at least a Song or Line Dance Name.")
+        else:
+            timestamp = datetime.now().strftime("%Y-%m-%d %H:%M:%S")
+            mood = "🔥" if "Remix" in remix or category in ["Club Banger", "Throwback"] else "💃🏾"
+            rating = ""
+            status = "Queued"
+            submission_type = "Early"
+            tempo = ""
+            bpm = ""
+            played = "No"
+            date_played = ""
+            need_music = "Yes"
+            mp3_link = ""
+            download_status = "Pending"
+            source_platform = ""
+            unique_id = f"{timestamp}_{submitted_by}"
+
+            new_row = [
+                timestamp, song, artist, line_dance, category, remix, mood,
+                dance_level, submitted_by, occasion, rating, status,
+                submission_type, tempo, bpm, played, date_played,
+                need_music, mp3_link, download_status, source_platform, unique_id
+            ]
+            worksheet.append_row(new_row)
+            st.success("✅ Request submitted successfully!")
+
+# ---------- 6. Footer ----------
+st.markdown("---")
+st.caption("Powered by DJ StephieSteph • #LETS WORK!! 🎧🔥")
