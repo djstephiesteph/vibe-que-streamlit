@@ -6,8 +6,9 @@ from oauth2client.service_account import ServiceAccountCredentials
 
 # Google Sheets setup
 scope = [
-    "https://spreadsheets.google.com/feeds",
-    "https://www.googleapis.com/auth/drive",
+    "https://www.googleapis.com/auth/spreadsheets",
+    "https://www.googleapis.com/auth/drive"
+
 ]
 import json
 creds_dict = json.loads(st.secrets["GOOGLE_CREDS"])
