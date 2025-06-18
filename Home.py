@@ -1,7 +1,9 @@
 import streamlit as st
 
-st.image("vibeque_welcome_logo.png", use_column_width=True)
+# 🎧 Display your actual welcome logo (filename must match GitHub exactly)
+st.image("Vibe Zone with DJ Stefie Stef.png", use_container_width=True)
 
+# 💬 Welcome message
 st.markdown("""
 ## 🎉 Welcome to the Vibe Zone!
 Request your favorite songs, earn badges, and keep the vibe alive!
@@ -10,6 +12,7 @@ Before you start, please review our event participation terms.
 We use your name to track requests, award badges, and keep the queue running smoothly.
 """)
 
+# 📜 Terms & Conditions inside a scrollable section
 with st.expander("📜 View Full Terms & Conditions"):
     st.markdown("""
 **VibeQue App Terms & Conditions**
@@ -45,11 +48,14 @@ VibeQue may update these terms at any time. Continued use of the platform after 
 For questions about these terms, please contact the DJ or app admin directly during the event.
 """)
 
+# ✅ Consent checkbox
 agree = st.checkbox("I have read and agree to the Terms & Conditions")
 
+# 🚪 Entry button (only enabled if checkbox is ticked)
 if agree:
     if st.button("Enter Vibe Que"):
         st.success("Welcome to the Vibe Que experience! 🎉")
+        st.markdown("👉 Use the sidebar to access the Request Form.")
 else:
     st.button("Enter Vibe Que", disabled=True)
     st.info("You must agree to the Terms & Conditions to continue.")
